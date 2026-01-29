@@ -5,11 +5,24 @@ import 'package:flutter/services.dart';
 import 'liquid_border/liquid_border.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const LiquidBorderApp());
 }
 
-class LiquidBorderApp extends StatelessWidget {
+class LiquidBorderApp extends StatefulWidget {
   const LiquidBorderApp({super.key});
+
+  @override
+  State<LiquidBorderApp> createState() => _LiquidBorderAppState();
+}
+
+class _LiquidBorderAppState extends State<LiquidBorderApp> {
+  // Global state for the gyro feature
+  bool isGyroEnabled = true;
 
   @override
   Widget build(BuildContext context) {
@@ -21,101 +34,82 @@ class LiquidBorderApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF0F0F0F),
         useMaterial3: true,
       ),
-      home: const LiquidShowcaseScreen(),
+      // Pass the state down to the screen
+      home: LiquidShowcaseScreen(
+        isGyroEnabled: isGyroEnabled,
+        onToggleGyro: (value) => setState(() => isGyroEnabled = value),
+      ),
     );
   }
 }
 
-class LiquidShowcaseScreen extends StatefulWidget {
-  const LiquidShowcaseScreen({super.key});
+class LiquidShowcaseScreen extends StatelessWidget {
+  final bool isGyroEnabled;
+  final ValueChanged<bool> onToggleGyro;
+
+  const LiquidShowcaseScreen({
+    super.key,
+    required this.isGyroEnabled,
+    required this.onToggleGyro,
+  });
 
   @override
-  State<LiquidShowcaseScreen> createState() => _LiquidShowcaseScreenState();
+  Widget build(BuildContext context) {
+    // ROOT: Wrap the screen in LiquidGyro with the toggle parameter
+    return LiquidGyro(
+      enableGyro: isGyroEnabled, // <--- Controlled here
+      fallbackAlignment: Alignment.topLeft, // Where it goes when disabled
+      sensitivity: 0.5,
+      smoothing: 0.05,
+      child: _ShowcaseContent(
+        isGyroEnabled: isGyroEnabled,
+        onToggleGyro: onToggleGyro,
+      ),
+    );
+  }
 }
 
-class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with SingleTickerProviderStateMixin {
-  Alignment lightSource = Alignment.topLeft;
+class _ShowcaseContent extends StatefulWidget {
+  final bool isGyroEnabled;
+  final ValueChanged<bool> onToggleGyro;
 
-  // Animation controller for the background movement
-  late AnimationController _controller;
+  const _ShowcaseContent({
+    required this.isGyroEnabled,
+    required this.onToggleGyro,
+  });
+
+  @override
+  State<_ShowcaseContent> createState() => _ShowcaseContentState();
+}
+
+class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerProviderStateMixin {
+  late AnimationController _bgController;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _bgController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 12),
     )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _bgController.dispose();
     super.dispose();
-  }
-
-  void _rotateLight() {
-    setState(() {
-      if (lightSource == Alignment.topLeft) {
-        lightSource = Alignment.topRight;
-      } else if (lightSource == Alignment.topRight) {
-        lightSource = Alignment.bottomRight;
-      } else if (lightSource == Alignment.bottomRight) {
-        lightSource = Alignment.bottomLeft;
-      } else {
-        lightSource = Alignment.topLeft;
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final demoStyle = LiquidStyle.standard.copyWith(lightSource: lightSource);
+    const baseStyle = LiquidStyle.standard;
 
     return Scaffold(
       body: Stack(
         children: [
-          // -----------------------------------------------------------
-          // LAYER 0: Animated Complex Background
-          // -----------------------------------------------------------
           const _BackgroundGradient(),
-          AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Stack(
-                  children: [
-                    _FloatingBlob(
-                      color: Colors.blueAccent.withValues(alpha: 0.3),
-                      size: 300,
-                      x: -0.5 + (math.sin(_controller.value * math.pi) * 0.2),
-                      y: -0.5,
-                    ),
-                    _FloatingBlob(
-                      color: Colors.purpleAccent.withValues(alpha: 0.2),
-                      size: 250,
-                      x: 0.8,
-                      y: 0.2 + (math.cos(_controller.value * math.pi) * 0.2),
-                    ),
-                    _FloatingBlob(
-                      color: Colors.cyanAccent.withValues(alpha: 0.2),
-                      size: 200,
-                      x: -0.2,
-                      y: 0.8,
-                    ),
-                    _FloatingBlob(
-                      color: Colors.pinkAccent.withValues(alpha: 0.15),
-                      size: 150,
-                      x: 0.5,
-                      y: -0.2,
-                    ),
-                  ],
-                );
-              }
-          ),
+          _buildAnimatedBlobs(),
 
-          // -----------------------------------------------------------
-          // LAYER 1: Glass Content
-          // -----------------------------------------------------------
           CustomScrollView(
             slivers: [
               _buildAppBar(),
@@ -123,9 +117,16 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
                 padding: const EdgeInsets.all(24),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    _sectionHeader("1. Primitives & Transparency"),
-                    const SizedBox(height: 16),
-                    _buildPrimitivesRow(demoStyle),
+                    _sectionHeader("1. Gyro Controls"),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.isGyroEnabled
+                          ? "Tilt your phone to move the light source."
+                          : "Gyro disabled. Using static Top-Left light.",
+                      style: const TextStyle(color: Colors.white30, fontSize: 12),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildPrimitivesRow(baseStyle),
 
                     const SizedBox(height: 48),
                     _sectionHeader("2. Intensity Presets"),
@@ -135,12 +136,12 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
                     const SizedBox(height: 48),
                     _sectionHeader("3. Real-World Glass Card"),
                     const SizedBox(height: 16),
-                    _buildCreditCard(demoStyle),
+                    _buildCreditCard(baseStyle),
 
                     const SizedBox(height: 48),
-                    _sectionHeader("4. Performance List"),
+                    _sectionHeader("4. High Performance List"),
                     const SizedBox(height: 16),
-                    _buildScrollingList(demoStyle),
+                    _buildScrollingList(baseStyle),
 
                     const SizedBox(height: 100),
                   ]),
@@ -150,20 +151,14 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _rotateLight,
-        icon: const Icon(Icons.light_mode_outlined),
-        label: Text("Light: ${_alignmentToString(lightSource)}"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-      ),
+      floatingActionButton: _buildDebugFab(context),
     );
   }
 
   Widget _buildAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
-      backgroundColor: Colors.transparent, // Important for glass effect
+      backgroundColor: Colors.transparent,
       floating: false,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
@@ -174,18 +169,90 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
         ),
         background: Container(
           decoration: const BoxDecoration(
-            // Slight gradient fade for the text legibility at top
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.black54,
-                Colors.transparent,
-              ],
+              colors: [Colors.black54, Colors.transparent],
             ),
           ),
         ),
       ),
+      actions: [
+        // THE TOGGLE SWITCH
+        Row(
+          children: [
+            const Icon(Icons.screen_rotation, size: 16, color: Colors.white70),
+            const SizedBox(width: 8),
+            Switch(
+              value: widget.isGyroEnabled,
+              onChanged: widget.onToggleGyro,
+              activeColor: Colors.cyanAccent,
+            ),
+            const SizedBox(width: 16),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildDebugFab(BuildContext context) {
+    final controller = LiquidGyro.of(context);
+
+    // Even if disabled, we get a controller (it just stays static)
+    if (controller == null) return const SizedBox();
+
+    return ValueListenableBuilder<Alignment>(
+      valueListenable: controller,
+      builder: (context, alignment, child) {
+        return FloatingActionButton.extended(
+          onPressed: () {
+            // Toggle via FAB as well for convenience
+            widget.onToggleGyro(!widget.isGyroEnabled);
+          },
+          icon: Icon(widget.isGyroEnabled ? Icons.sensors : Icons.sensors_off),
+          label: Text(
+            widget.isGyroEnabled
+                ? "Light: ${_formatAlignment(alignment)}"
+                : "Gyro Off",
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+          ),
+          backgroundColor: Colors.white.withValues(alpha: 0.9),
+          foregroundColor: Colors.black,
+        );
+      },
+    );
+  }
+
+  // ... (Rest of the widgets: _buildPrimitivesRow, _buildCreditCard, etc. remain unchanged) ...
+  // Paste the rest of the file content from the previous main.dart here if not using the full dump
+
+  Widget _buildAnimatedBlobs() {
+    return AnimatedBuilder(
+        animation: _bgController,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              _FloatingBlob(
+                color: Colors.blueAccent.withValues(alpha: 0.3),
+                size: 300,
+                x: -0.5 + (math.sin(_bgController.value * math.pi) * 0.2),
+                y: -0.5,
+              ),
+              _FloatingBlob(
+                color: Colors.purpleAccent.withValues(alpha: 0.2),
+                size: 250,
+                x: 0.8,
+                y: 0.2 + (math.cos(_bgController.value * math.pi) * 0.2),
+              ),
+              _FloatingBlob(
+                color: Colors.cyanAccent.withValues(alpha: 0.15),
+                size: 200,
+                x: -0.2,
+                y: 0.8,
+              ),
+            ],
+          );
+        }
     );
   }
 
@@ -195,20 +262,17 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
       runSpacing: 24,
       alignment: WrapAlignment.center,
       children: [
-        // Circle
         _ShowcaseItem(
           label: "Circle",
           child: LiquidContainer(
             shape: LiquidShape.circle,
             width: 80,
             height: 80,
-            // Glassy Fill: Low opacity white
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             style: style,
             child: const Center(child: Icon(Icons.water_drop, size: 24, color: Colors.white70)),
           ),
         ),
-        // Stadium
         _ShowcaseItem(
           label: "Stadium",
           child: LiquidContainer(
@@ -220,7 +284,6 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
             child: const Center(child: Text("Action", style: TextStyle(fontSize: 12))),
           ),
         ),
-        // Rectangle
         _ShowcaseItem(
           label: "Rectangle",
           child: LiquidContainer(
@@ -239,8 +302,6 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
 
   Widget _buildPresetsRow() {
     Widget presetBox(String name, LiquidStyle s) {
-      final activeStyle = s.copyWith(lightSource: lightSource);
-
       return Column(
         children: [
           LiquidContainer(
@@ -248,7 +309,7 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
             height: 70,
             borderRadius: BorderRadius.circular(16),
             backgroundColor: Colors.white.withValues(alpha: 0.05),
-            style: activeStyle,
+            style: s,
             child: const SizedBox(),
           ),
           const SizedBox(height: 12),
@@ -268,21 +329,22 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
   }
 
   Widget _buildCreditCard(LiquidStyle style) {
+    final cardStyle = style.copyWith(
+        intensity: 0.9,
+        insideGlowIntensity: 0.3,
+        refractionIntensity: 0.8,
+        withInnerHighlight: true
+    );
+
     return LiquidContainer(
       width: double.infinity,
       height: 220,
       shape: LiquidShape.rectangle,
       borderRadius: BorderRadius.circular(24),
-      // Glassy fill allows background blobs to show through
       backgroundColor: Colors.white.withValues(alpha: 0.08),
-      style: style.copyWith(
-          intensity: 0.9,
-          insideGlowIntensity: 0.3,
-          withInnerHighlight: true
-      ),
+      style: cardStyle,
       child: Stack(
         children: [
-          // This inner gradient simulates frosted noise or sheen
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -309,7 +371,7 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Icon(Icons.blur_on, color: Colors.white70, size: 32),
-                    Text("LIQUID GLASS", style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    Text("LIQUID GYRO", style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                   ],
                 ),
                 Column(
@@ -360,7 +422,6 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
               width: 100,
               shape: LiquidShape.stadium,
               style: style.copyWith(thickness: 1.2),
-              // Very low opacity to see background moving behind it
               backgroundColor: Colors.white.withValues(alpha: 0.05),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -392,12 +453,8 @@ class _LiquidShowcaseScreenState extends State<LiquidShowcaseScreen> with Single
     );
   }
 
-  String _alignmentToString(Alignment a) {
-    if (a == Alignment.topLeft) return "Top Left";
-    if (a == Alignment.topRight) return "Top Right";
-    if (a == Alignment.bottomLeft) return "Bottom Left";
-    if (a == Alignment.bottomRight) return "Bottom Right";
-    return "Custom";
+  String _formatAlignment(Alignment a) {
+    return "X:${a.x.toStringAsFixed(1)}, Y:${a.y.toStringAsFixed(1)}";
   }
 }
 
@@ -417,10 +474,6 @@ class _ShowcaseItem extends StatelessWidget {
     );
   }
 }
-
-// -----------------------------------------------------------------------------
-// BACKGROUND WIDGETS
-// -----------------------------------------------------------------------------
 
 class _BackgroundGradient extends StatelessWidget {
   const _BackgroundGradient();

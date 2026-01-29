@@ -36,7 +36,7 @@ class LiquidStyle {
   const LiquidStyle({
     this.thickness = 0.5,
     this.intensity = 0.8,
-    this.insideGlowIntensity = 0.2,
+    this.insideGlowIntensity = 0.0,
     this.refractionIntensity = 0.6, // Default refraction visibility
     this.lightSource = Alignment.topLeft,
     this.withInnerHighlight = true,

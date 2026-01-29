@@ -2,26 +2,14 @@
 import 'liquid_shape.dart';
 import 'liquid_style.dart';
 import 'liquid_painter.dart';
+import 'liquid_gyro.dart';
 
-/// A container that wraps its child in a liquid-inspired, light-refracting border.
-/// 
-/// This widget is optimized for scrolling lists (ListView/GridView) as it uses
-/// CustomPainter and avoids heavy BackdropFilters.
 class LiquidContainer extends StatelessWidget {
   final Widget child;
-  
-  /// The geometric shape of the border.
   final LiquidShape shape;
-  
-  /// Configuration for the visual style (lighting, thickness, etc).
   final LiquidStyle style;
-  
-  /// Border radius (ignored if shape is Circle or Stadium).
   final BorderRadius? borderRadius;
-  
-  /// Background color fill. 
   final Color? backgroundColor;
-  
   final double? width;
   final double? height;
   final EdgeInsetsGeometry? padding;
@@ -42,21 +30,25 @@ class LiquidContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default radius for rectangles if not provided
     final BorderRadius effectiveRadius = borderRadius ?? BorderRadius.circular(20);
+
+    // 1. Lookup the controller (O(1) operation)
+    final gyroController = LiquidGyro.of(context);
 
     return Container(
       width: width,
       height: height,
       margin: margin,
       child: CustomPaint(
+        // 2. Connect the controller to the painter's refresh mechanism
         painter: LiquidBorderPainter(
           shape: shape,
           style: style,
           radius: effectiveRadius,
           fillColor: backgroundColor,
+          // If gyro is found, the painter will listen to it automatically
+          repaint: gyroController,
         ),
-        // Ensure child doesn't overlap the border stroke
         child: Padding(
           padding: padding ?? EdgeInsets.all(style.thickness + 4),
           child: child,

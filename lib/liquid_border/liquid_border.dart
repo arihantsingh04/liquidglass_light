@@ -3,3 +3,4 @@
 export 'src/liquid_container.dart';
 export 'src/liquid_style.dart';
 export 'src/liquid_shape.dart';
+export 'src/liquid_gyro.dart'; // <--- Added this
