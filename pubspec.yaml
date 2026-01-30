@@ -1,9 +1,9 @@
 name: liquidglass_light
 description: A high-performance Flutter package that creates liquid, glass-like borders with gyro-simulated light reflections and dynamic gradients.
-version: 0.0.1
-homepage: https://github.com/your_username/liquidglass_light # REPLACE THIS
-repository: https://github.com/your_username/liquidglass_light # REPLACE THIS
-issue_tracker: https://github.com/your_username/liquidglass_light/issues # REPLACE THIS
+version: 0.0.3
+homepage: https://github.com/arihantsingh04/liquidglass_light/
+repository: https://github.com/arihantsingh04/liquidglass_light/
+issue_tracker: https://github.com/arihantsingh04/liquidglass_light/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
