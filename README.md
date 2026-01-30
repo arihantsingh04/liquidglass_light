@@ -2,7 +2,7 @@
 
 A high-performance Flutter package that creates distinct, "liquid-like" borders that react to device orientation (gyroscope). It simulates light refraction, specular highlights, and glassmorphism to give your UI a premium, physical feel.
 
-![Liquid Border Demo](https://via.placeholder.com/800x400?text=Insert+Gif+Here)
+![Liquid Border Demo](https://github.com/arihantsingh04/liquidglass_light/blob/main/assets/3.gif)
 ## Features
 
 * **📱 Gyro-Reactive Lighting:** The border's light source moves as you tilt your device.
