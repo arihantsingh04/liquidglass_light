@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'liquid_border/liquid_border.dart';
+import 'package:liquidglass_light/liquid_border/liquid_border.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,6 @@ class _LiquidBorderAppState extends State<LiquidBorderApp> {
         scaffoldBackgroundColor: const Color(0xFF0F0F0F),
         useMaterial3: true,
       ),
-      // Pass the state down to the screen
       home: LiquidShowcaseScreen(
         isGyroEnabled: isGyroEnabled,
         onToggleGyro: (value) => setState(() => isGyroEnabled = value),
@@ -55,12 +54,9 @@ class LiquidShowcaseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ROOT: Wrap the screen in LiquidGyro with the toggle parameter
     return LiquidGyro(
-      enableGyro: isGyroEnabled, // <--- Controlled here
-      fallbackAlignment: Alignment.topLeft, // Where it goes when disabled
-      sensitivity: 0.5,
-      smoothing: 0.05,
+      enableGyro: isGyroEnabled,
+      fallbackAlignment: Alignment.topLeft,
       child: _ShowcaseContent(
         isGyroEnabled: isGyroEnabled,
         onToggleGyro: onToggleGyro,
@@ -82,7 +78,8 @@ class _ShowcaseContent extends StatefulWidget {
   State<_ShowcaseContent> createState() => _ShowcaseContentState();
 }
 
-class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerProviderStateMixin {
+class _ShowcaseContentState extends State<_ShowcaseContent>
+    with SingleTickerProviderStateMixin {
   late AnimationController _bgController;
 
   @override
@@ -109,7 +106,6 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
         children: [
           const _BackgroundGradient(),
           _buildAnimatedBlobs(),
-
           CustomScrollView(
             slivers: [
               _buildAppBar(),
@@ -123,26 +119,23 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
                       widget.isGyroEnabled
                           ? "Tilt your phone to move the light source."
                           : "Gyro disabled. Using static Top-Left light.",
-                      style: const TextStyle(color: Colors.white30, fontSize: 12),
+                      style:
+                          const TextStyle(color: Colors.white30, fontSize: 12),
                     ),
                     const SizedBox(height: 24),
                     _buildPrimitivesRow(baseStyle),
-
                     const SizedBox(height: 48),
                     _sectionHeader("2. Intensity Presets"),
                     const SizedBox(height: 16),
                     _buildPresetsRow(),
-
                     const SizedBox(height: 48),
                     _sectionHeader("3. Real-World Glass Card"),
                     const SizedBox(height: 16),
                     _buildCreditCard(baseStyle),
-
                     const SizedBox(height: 48),
                     _sectionHeader("4. High Performance List"),
                     const SizedBox(height: 16),
                     _buildScrollingList(baseStyle),
-
                     const SizedBox(height: 100),
                   ]),
                 ),
@@ -178,7 +171,6 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
         ),
       ),
       actions: [
-        // THE TOGGLE SWITCH
         Row(
           children: [
             const Icon(Icons.screen_rotation, size: 16, color: Colors.white70),
@@ -197,8 +189,6 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
 
   Widget _buildDebugFab(BuildContext context) {
     final controller = LiquidGyro.of(context);
-
-    // Even if disabled, we get a controller (it just stays static)
     if (controller == null) return const SizedBox();
 
     return ValueListenableBuilder<Alignment>(
@@ -206,7 +196,6 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
       builder: (context, alignment, child) {
         return FloatingActionButton.extended(
           onPressed: () {
-            // Toggle via FAB as well for convenience
             widget.onToggleGyro(!widget.isGyroEnabled);
           },
           icon: Icon(widget.isGyroEnabled ? Icons.sensors : Icons.sensors_off),
@@ -222,9 +211,6 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
       },
     );
   }
-
-  // ... (Rest of the widgets: _buildPrimitivesRow, _buildCreditCard, etc. remain unchanged) ...
-  // Paste the rest of the file content from the previous main.dart here if not using the full dump
 
   Widget _buildAnimatedBlobs() {
     return AnimatedBuilder(
@@ -252,8 +238,7 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
               ),
             ],
           );
-        }
-    );
+        });
   }
 
   Widget _buildPrimitivesRow(LiquidStyle style) {
@@ -268,9 +253,11 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
             shape: LiquidShape.circle,
             width: 80,
             height: 80,
+            enableGyro: widget.isGyroEnabled,
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             style: style,
-            child: const Center(child: Icon(Icons.water_drop, size: 24, color: Colors.white70)),
+            child: const Center(
+                child: Icon(Icons.water_drop, size: 24, color: Colors.white70)),
           ),
         ),
         _ShowcaseItem(
@@ -279,9 +266,11 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
             shape: LiquidShape.stadium,
             width: 100,
             height: 50,
+            enableGyro: widget.isGyroEnabled,
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             style: style,
-            child: const Center(child: Text("Action", style: TextStyle(fontSize: 12))),
+            child: const Center(
+                child: Text("Action", style: TextStyle(fontSize: 12))),
           ),
         ),
         _ShowcaseItem(
@@ -290,10 +279,12 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
             shape: LiquidShape.rectangle,
             width: 80,
             height: 80,
+            enableGyro: widget.isGyroEnabled,
             borderRadius: BorderRadius.circular(20),
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             style: style,
-            child: const Center(child: Icon(Icons.grid_view, size: 20, color: Colors.white70)),
+            child: const Center(
+                child: Icon(Icons.grid_view, size: 20, color: Colors.white70)),
           ),
         ),
       ],
@@ -309,11 +300,13 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
             height: 70,
             borderRadius: BorderRadius.circular(16),
             backgroundColor: Colors.white.withValues(alpha: 0.05),
+            enableGyro: widget.isGyroEnabled,
             style: s,
             child: const SizedBox(),
           ),
           const SizedBox(height: 12),
-          Text(name, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+          Text(name,
+              style: const TextStyle(fontSize: 11, color: Colors.white54)),
         ],
       );
     }
@@ -330,10 +323,11 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
 
   Widget _buildCreditCard(LiquidStyle style) {
     final cardStyle = style.copyWith(
-        intensity: 0.9,
-        insideGlowIntensity: 0.3,
-        refractionIntensity: 0.8,
-        withInnerHighlight: true
+      intensity: 0.9,
+      insideGlowIntensity: 0.3,
+      refractionIntensity: 0.8,
+      withInnerHighlight: true,
+      blurStrength: 8.0,
     );
 
     return LiquidContainer(
@@ -342,6 +336,7 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
       shape: LiquidShape.rectangle,
       borderRadius: BorderRadius.circular(24),
       backgroundColor: Colors.white.withValues(alpha: 0.08),
+      enableGyro: widget.isGyroEnabled,
       style: cardStyle,
       child: Stack(
         children: [
@@ -371,29 +366,48 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Icon(Icons.blur_on, color: Colors.white70, size: 32),
-                    Text("LIQUID GYRO", style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    Text("LIQUID GYRO",
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5)),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("4920  ••••  ••••  9012", style: TextStyle(fontSize: 24, fontFamily: 'Courier', letterSpacing: 3, fontWeight: FontWeight.w500)),
+                    const Text("4920  ••••  ••••  9012",
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontFamily: 'Courier',
+                            letterSpacing: 3,
+                            fontWeight: FontWeight.w500)),
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        Column(
+                        // FIX: const added
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text("VALID THRU", style: TextStyle(fontSize: 9, color: Colors.white60)),
-                            Text("12/28", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                          children: [
+                            Text("VALID THRU",
+                                style: TextStyle(
+                                    fontSize: 9, color: Colors.white60)),
+                            Text("12/28",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(width: 32),
-                        Column(
+                        // FIX: const added
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text("CARDHOLDER", style: TextStyle(fontSize: 9, color: Colors.white60)),
-                            Text("FLUTTER DEV", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                          children: [
+                            Text("CARDHOLDER",
+                                style: TextStyle(
+                                    fontSize: 9, color: Colors.white60)),
+                            Text("FLUTTER DEV",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ],
@@ -423,15 +437,19 @@ class _ShowcaseContentState extends State<_ShowcaseContent> with SingleTickerPro
               shape: LiquidShape.stadium,
               style: style.copyWith(thickness: 1.2),
               backgroundColor: Colors.white.withValues(alpha: 0.05),
+              enableGyro: false,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    index % 2 == 0 ? Icons.water_drop_outlined : Icons.auto_awesome,
+                    index % 2 == 0
+                        ? Icons.water_drop_outlined
+                        : Icons.auto_awesome,
                     color: Colors.white70,
                   ),
                   const SizedBox(height: 8),
-                  Text("Item ${index + 1}", style: const TextStyle(fontSize: 12)),
+                  Text("Item ${index + 1}",
+                      style: const TextStyle(fontSize: 12)),
                 ],
               ),
             ),
@@ -469,7 +487,8 @@ class _ShowcaseItem extends StatelessWidget {
       children: [
         child,
         const SizedBox(height: 12),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white54)),
+        Text(label,
+            style: const TextStyle(fontSize: 12, color: Colors.white54)),
       ],
     );
   }
@@ -538,6 +557,7 @@ extension LiquidStyleDemoExt on LiquidStyle {
     bool? withInnerHighlight,
     bool? withOuterGlow,
     Color? baseColor,
+    double? blurStrength,
   }) {
     return LiquidStyle(
       thickness: thickness ?? this.thickness,
@@ -548,6 +568,7 @@ extension LiquidStyleDemoExt on LiquidStyle {
       withInnerHighlight: withInnerHighlight ?? this.withInnerHighlight,
       withOuterGlow: withOuterGlow ?? this.withOuterGlow,
       baseColor: baseColor ?? this.baseColor,
+      blurStrength: blurStrength ?? this.blurStrength,
     );
   }
 }

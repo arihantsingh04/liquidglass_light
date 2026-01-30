@@ -1,16 +1,14 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'liquid_shape.dart';
 import 'liquid_style.dart';
-import 'liquid_gyro.dart'; // Needed for type checking
+import 'liquid_gyro.dart';
 
 class LiquidBorderPainter extends CustomPainter {
   final LiquidShape shape;
   final LiquidStyle style;
   final BorderRadius radius;
   final Color? fillColor;
-
-  // FIX: Explicitly declare this field so we can access it inside paint()
   final Listenable? repaint;
 
   LiquidBorderPainter({
@@ -18,8 +16,8 @@ class LiquidBorderPainter extends CustomPainter {
     required this.style,
     required this.radius,
     this.fillColor,
-    this.repaint, // Initialize our local field
-  }) : super(repaint: repaint); // Pass it to the superclass for the repaint mechanism
+    this.repaint,
+  }) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -33,15 +31,12 @@ class LiquidBorderPainter extends CustomPainter {
     }
 
     // 2. Determine Active Light Source
-    // Default to style, but override if we have a live gyro controller
     Alignment activeLight = style.lightSource;
-
-    // FIX: Now 'repaint' is accessible here
     if (repaint is LiquidController) {
       activeLight = (repaint as LiquidController).value;
     }
 
-    // 3. Draw Layers using activeLight
+    // 3. Draw Layers
     if (style.insideGlowIntensity > 0) {
       _drawInnerSourceGlow(canvas, rrect, rect, activeLight);
     }
@@ -58,8 +53,6 @@ class LiquidBorderPainter extends CustomPainter {
       _drawInnerHighlight(canvas, rrect, rect, lightAngle, activeLight);
     }
   }
-
-  // --- Drawing Helpers ---
 
   RRect _resolveShape(Rect rect) {
     if (shape == LiquidShape.circle) {
@@ -82,12 +75,14 @@ class LiquidBorderPainter extends CustomPainter {
     return math.atan2(alignment.y, alignment.x);
   }
 
-  void _drawInnerSourceGlow(Canvas canvas, RRect rrect, Rect rect, Alignment light) {
+  void _drawInnerSourceGlow(
+      Canvas canvas, RRect rrect, Rect rect, Alignment light) {
     final paint = Paint()..style = PaintingStyle.fill;
-    final glowColor = style.baseColor.withValues(alpha: style.insideGlowIntensity);
+    final glowColor =
+        style.baseColor.withValues(alpha: style.insideGlowIntensity);
 
     paint.shader = RadialGradient(
-      center: light, // Dynamic light
+      center: light,
       radius: 0.75,
       colors: [glowColor, Colors.transparent],
       stops: const [0.0, 1.0],
@@ -99,7 +94,8 @@ class LiquidBorderPainter extends CustomPainter {
     canvas.restore();
   }
 
-  void _drawPrimaryStroke(Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
+  void _drawPrimaryStroke(
+      Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = style.thickness
@@ -126,7 +122,8 @@ class LiquidBorderPainter extends CustomPainter {
     canvas.drawRRect(rrect, paint);
   }
 
-  void _drawInnerHighlight(Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
+  void _drawInnerHighlight(
+      Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
     final double inset = style.thickness * 0.8;
     final RRect innerRRect = rrect.deflate(inset);
     if (innerRRect.width <= 0 || innerRRect.height <= 0) return;
@@ -156,10 +153,12 @@ class LiquidBorderPainter extends CustomPainter {
     canvas.drawRRect(innerRRect, paint);
   }
 
-  void _drawGlow(Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
+  void _drawGlow(
+      Canvas canvas, RRect rrect, Rect rect, double angle, Alignment light) {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = style.thickness * 3
+      // FIX: const added here
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
     final colors = [

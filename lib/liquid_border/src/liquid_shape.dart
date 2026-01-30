@@ -1,4 +1,4 @@
-﻿library liquid_border;
+library liquid_border;
 
 /// Defines the geometric shape of the liquid container.
 enum LiquidShape {

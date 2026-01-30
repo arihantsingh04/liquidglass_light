@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// Configuration for the liquid border aesthetics.
 class LiquidStyle {
@@ -13,9 +13,8 @@ class LiquidStyle {
   /// 0.0 = No glow, 1.0 = Full opacity fill.
   final double insideGlowIntensity;
 
-  /// NEW: Controls the intensity of the "refraction" highlight
+  /// Controls the intensity of the "refraction" highlight
   /// (usually the bottom-right border opposite the light).
-  /// Default was 0.6. Higher = brighter bottom-right edge.
   final double refractionIntensity;
 
   /// The direction the light is coming from.
@@ -33,24 +32,30 @@ class LiquidStyle {
   /// The base color of the "liquid" (usually white/glass).
   final Color baseColor;
 
+  /// NEW: Controls the strength of the background blur.
+  /// Defaults to 0.0 (No blur).
+  final double blurStrength;
+
   const LiquidStyle({
     this.thickness = 0.5,
     this.intensity = 0.8,
     this.insideGlowIntensity = 0.0,
-    this.refractionIntensity = 0.6, // Default refraction visibility
+    this.refractionIntensity = 0.6,
     this.lightSource = Alignment.topLeft,
     this.withInnerHighlight = true,
     this.withOuterGlow = false,
     this.baseColor = Colors.white,
+    this.blurStrength = 0.0, // Default to 0.0 as requested
   });
 
   /// Preset: Subtle, barely-there glass edge.
   static const LiquidStyle soft = LiquidStyle(
-      intensity: 0.2,
-      refractionIntensity: 0.3,
-      insideGlowIntensity: 0.1,
-      thickness: 0.4,
-      withInnerHighlight: false
+    intensity: 0.2,
+    refractionIntensity: 0.3,
+    insideGlowIntensity: 0.1,
+    thickness: 0.4,
+    withInnerHighlight: false,
+    blurStrength: 0.0,
   );
 
   /// Preset: High contrast, "wet" look with outer glow.
@@ -61,10 +66,18 @@ class LiquidStyle {
     thickness: 1.0,
     withOuterGlow: true,
     withInnerHighlight: true,
+    blurStrength: 0.0,
   );
 
   /// Preset: Standard iOS-style frosted border.
   static const LiquidStyle standard = LiquidStyle();
+
+  /// Preset: Frosted Glass with blur enabled.
+  static const LiquidStyle frosted = LiquidStyle(
+    blurStrength: 10.0,
+    intensity: 0.6,
+    thickness: 0.8,
+  );
 
   /// Helper to copy with changes
   LiquidStyle copyWith({
@@ -76,6 +89,7 @@ class LiquidStyle {
     bool? withInnerHighlight,
     bool? withOuterGlow,
     Color? baseColor,
+    double? blurStrength,
   }) {
     return LiquidStyle(
       thickness: thickness ?? this.thickness,
@@ -86,32 +100,35 @@ class LiquidStyle {
       withInnerHighlight: withInnerHighlight ?? this.withInnerHighlight,
       withOuterGlow: withOuterGlow ?? this.withOuterGlow,
       baseColor: baseColor ?? this.baseColor,
+      blurStrength: blurStrength ?? this.blurStrength,
     );
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is LiquidStyle &&
-              runtimeType == other.runtimeType &&
-              thickness == other.thickness &&
-              intensity == other.intensity &&
-              insideGlowIntensity == other.insideGlowIntensity &&
-              refractionIntensity == other.refractionIntensity &&
-              lightSource == other.lightSource &&
-              withInnerHighlight == other.withInnerHighlight &&
-              withOuterGlow == other.withOuterGlow &&
-              baseColor == other.baseColor;
+      other is LiquidStyle &&
+          runtimeType == other.runtimeType &&
+          thickness == other.thickness &&
+          intensity == other.intensity &&
+          insideGlowIntensity == other.insideGlowIntensity &&
+          refractionIntensity == other.refractionIntensity &&
+          lightSource == other.lightSource &&
+          withInnerHighlight == other.withInnerHighlight &&
+          withOuterGlow == other.withOuterGlow &&
+          baseColor == other.baseColor &&
+          blurStrength == other.blurStrength;
 
   @override
   int get hashCode => Object.hash(
-    thickness,
-    intensity,
-    insideGlowIntensity,
-    refractionIntensity,
-    lightSource,
-    withInnerHighlight,
-    withOuterGlow,
-    baseColor,
-  );
+        thickness,
+        intensity,
+        insideGlowIntensity,
+        refractionIntensity,
+        lightSource,
+        withInnerHighlight,
+        withOuterGlow,
+        baseColor,
+        blurStrength,
+      );
 }

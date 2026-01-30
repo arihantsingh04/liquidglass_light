@@ -38,14 +38,17 @@ class LiquidGyro extends StatefulWidget {
   });
 
   static LiquidController? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_LiquidGyroScope>()?.controller;
+    return context
+        .dependOnInheritedWidgetOfExactType<_LiquidGyroScope>()
+        ?.controller;
   }
 
   @override
   State<LiquidGyro> createState() => _LiquidGyroState();
 }
 
-class _LiquidGyroState extends State<LiquidGyro> with SingleTickerProviderStateMixin {
+class _LiquidGyroState extends State<LiquidGyro>
+    with SingleTickerProviderStateMixin {
   late final LiquidController _controller;
   StreamSubscription<AccelerometerEvent>? _subscription;
   late Ticker _ticker;
@@ -105,8 +108,16 @@ class _LiquidGyroState extends State<LiquidGyro> with SingleTickerProviderStateM
 
     if (current == _targetAlignment) return;
 
-    final double newX = lerpDouble(current.x, _targetAlignment.x, widget.smoothing)!;
-    final double newY = lerpDouble(current.y, _targetAlignment.y, widget.smoothing)!;
+    final double newX = lerpDouble(
+      current.x,
+      _targetAlignment.x,
+      widget.smoothing,
+    )!;
+    final double newY = lerpDouble(
+      current.y,
+      _targetAlignment.y,
+      widget.smoothing,
+    )!;
 
     if ((newX - current.x).abs() < 0.001 && (newY - current.y).abs() < 0.001) {
       return;
@@ -125,20 +136,14 @@ class _LiquidGyroState extends State<LiquidGyro> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return _LiquidGyroScope(
-      controller: _controller,
-      child: widget.child,
-    );
+    return _LiquidGyroScope(controller: _controller, child: widget.child);
   }
 }
 
 class _LiquidGyroScope extends InheritedWidget {
   final LiquidController controller;
 
-  const _LiquidGyroScope({
-    required this.controller,
-    required super.child,
-  });
+  const _LiquidGyroScope({required this.controller, required super.child});
 
   @override
   bool updateShouldNotify(_LiquidGyroScope oldWidget) => false;

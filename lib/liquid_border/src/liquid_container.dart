@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'liquid_shape.dart';
 import 'liquid_style.dart';
 import 'liquid_painter.dart';
@@ -15,6 +16,10 @@ class LiquidContainer extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
 
+  /// NEW: Whether this specific container should react to the gyro.
+  /// Defaults to FALSE (off) as requested.
+  final bool enableGyro;
+
   const LiquidContainer({
     super.key,
     required this.child,
@@ -26,34 +31,65 @@ class LiquidContainer extends StatelessWidget {
     this.height,
     this.padding,
     this.margin,
+    this.enableGyro = false, // Default: OFF
   });
 
   @override
   Widget build(BuildContext context) {
-    final BorderRadius effectiveRadius = borderRadius ?? BorderRadius.circular(20);
+    final BorderRadius effectiveRadius =
+        borderRadius ?? BorderRadius.circular(20);
 
-    // 1. Lookup the controller (O(1) operation)
-    final gyroController = LiquidGyro.of(context);
+    // 1. Conditional Gyro Lookup
+    // If enableGyro is false, we pass null, so the painter stays static.
+    final gyroController = enableGyro ? LiquidGyro.of(context) : null;
+
+    // 2. Prepare content
+    Widget content = Padding(
+      padding: padding ?? EdgeInsets.all(style.thickness + 4),
+      child: child,
+    );
+
+    // 3. Apply Blur if defined in style
+    if (style.blurStrength > 0) {
+      content = ClipRRect(
+        borderRadius: _resolveBorderRadius(effectiveRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: style.blurStrength,
+            sigmaY: style.blurStrength,
+          ),
+          child: content,
+        ),
+      );
+    } else if (shape == LiquidShape.circle || shape == LiquidShape.stadium) {
+      // Standard clipping for non-rect shapes
+      content = ClipRRect(
+        borderRadius: _resolveBorderRadius(effectiveRadius),
+        child: content,
+      );
+    }
 
     return Container(
       width: width,
       height: height,
       margin: margin,
       child: CustomPaint(
-        // 2. Connect the controller to the painter's refresh mechanism
         painter: LiquidBorderPainter(
           shape: shape,
           style: style,
           radius: effectiveRadius,
           fillColor: backgroundColor,
-          // If gyro is found, the painter will listen to it automatically
+          // Will be null if enableGyro is false
           repaint: gyroController,
         ),
-        child: Padding(
-          padding: padding ?? EdgeInsets.all(style.thickness + 4),
-          child: child,
-        ),
+        child: content,
       ),
     );
+  }
+
+  BorderRadius _resolveBorderRadius(BorderRadius input) {
+    if (shape == LiquidShape.circle) return BorderRadius.circular(1000);
+    if (shape == LiquidShape.stadium) return BorderRadius.circular(1000);
+    return input;
   }
 }

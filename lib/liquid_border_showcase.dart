@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'liquid_border/liquid_border.dart'; // Ensure path matches your structure
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: LiquidBorderShowcase(),
-  ));
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LiquidBorderShowcase(),
+    ),
+  );
 }
 
 class LiquidBorderShowcase extends StatefulWidget {
@@ -45,7 +47,7 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                 }
               });
             },
-          )
+          ),
         ],
       ),
       body: ListView(
@@ -62,7 +64,9 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                 width: 80,
                 height: 80,
                 style: LiquidStyle.crisp.copyWith(lightSource: lightSource),
-                child: const Center(child: Icon(Icons.water_drop, color: Colors.cyan)),
+                child: const Center(
+                  child: Icon(Icons.water_drop, color: Colors.cyan),
+                ),
               ),
               // Stadium / Pill
               LiquidContainer(
@@ -70,7 +74,9 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                 width: 120,
                 height: 50,
                 style: LiquidStyle.standard.copyWith(lightSource: lightSource),
-                child: const Center(child: Text("Stadium", style: TextStyle(color: Colors.white))),
+                child: const Center(
+                  child: Text("Stadium", style: TextStyle(color: Colors.white)),
+                ),
               ),
               // Rounded Rect
               LiquidContainer(
@@ -79,11 +85,12 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                 height: 100,
                 borderRadius: BorderRadius.circular(16),
                 style: LiquidStyle.soft.copyWith(lightSource: lightSource),
-                child: const Center(child: Text("Rect", style: TextStyle(color: Colors.white))),
+                child: const Center(
+                  child: Text("Rect", style: TextStyle(color: Colors.white)),
+                ),
               ),
             ],
           ),
-
           const SizedBox(height: 40),
           _sectionHeader("2. Styles & Intensity"),
           Row(
@@ -99,7 +106,9 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
               _label(
                 "Standard",
                 LiquidContainer(
-                  style: LiquidStyle.standard.copyWith(lightSource: lightSource),
+                  style: LiquidStyle.standard.copyWith(
+                    lightSource: lightSource,
+                  ),
                   child: const SizedBox(width: 80, height: 80),
                 ),
               ),
@@ -112,7 +121,6 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
               ),
             ],
           ),
-
           const SizedBox(height: 40),
           _sectionHeader("3. Real World: Card"),
           LiquidContainer(
@@ -133,17 +141,31 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const Text("Glass Debit", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text(
+                    "Glass Debit",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text("The border catches the light based on angle.", style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
+                  Text(
+                    "The border catches the light based on angle.",
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-
           const SizedBox(height: 40),
           _sectionHeader("4. Real World: Scrolling List"),
           SizedBox(
@@ -156,17 +178,22 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
                   padding: const EdgeInsets.only(right: 12),
                   child: LiquidContainer(
                     shape: LiquidShape.stadium,
-                    style: LiquidStyle.standard.copyWith(lightSource: lightSource),
+                    style: LiquidStyle.standard.copyWith(
+                      lightSource: lightSource,
+                    ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       alignment: Alignment.center,
-                      child: Text("Item $i", style: const TextStyle(color: Colors.white)),
+                      child: Text(
+                        "Item $i",
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -177,7 +204,12 @@ class _LiquidBorderShowcaseState extends State<LiquidBorderShowcase> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(color: Colors.grey, letterSpacing: 1.2, fontSize: 12, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.grey,
+          letterSpacing: 1.2,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

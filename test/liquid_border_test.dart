@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-// CHANGE THIS IMPORT to match your project name
+// CORRECT IMPORT
 import 'package:liquidglass_light/liquid_border/liquid_border.dart';
 
 void main() {
-  testWidgets('LiquidContainer renders without crashing', (WidgetTester tester) async {
-    // Build the widget
+  testWidgets('LiquidContainer renders without crashing',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -17,7 +17,6 @@ void main() {
       ),
     );
 
-    // Verify it exists in the tree
     expect(find.byType(LiquidContainer), findsOneWidget);
     expect(find.text('Test'), findsOneWidget);
   });
